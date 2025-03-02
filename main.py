@@ -1,10 +1,12 @@
 import re
 import time
+
 import cv2
 import easyocr
 import mediapipe as mp
 import numpy as np
 from sympy import sympify
+
 
 # Function to safely evaluate a mathematical expression using SymPy
 def safe_evaluate(expr):
@@ -16,12 +18,14 @@ def safe_evaluate(expr):
     try:
         safe_result = float(sympify(expr))  # Evaluate the expression using SymPy
         # Format result: integer if whole number, otherwise truncate decimals to 2 places
-        safe_result = int(safe_result) if safe_result.is_integer() else "{:.2f}".format(safe_result).rstrip('0').rstrip('.')
+        safe_result = int(safe_result) if safe_result.is_integer() else "{:.2f}".format(safe_result).rstrip('0').rstrip(
+            '.')
         print(f"Result: {safe_result}\n")
         return str(safe_result)
     except:
         print("Error in evaluation\n")
         return None
+
 
 # Initialize EasyOCR reader for English with GPU enabled
 reader = easyocr.Reader(['en'], gpu=True)
@@ -49,8 +53,8 @@ font = cv2.FONT_HERSHEY_SIMPLEX
 # Define colors and drawing parameters
 hudColor = (0, 255, 0)  # Color for HUD elements
 drawColor = (0, 0, 255)  # Color for drawing strokes
-noColor = (0, 0, 0)      # Color used for erasing (black)
-thickness = 5            # Thickness of drawn lines
+noColor = (0, 0, 0)  # Color used for erasing (black)
+thickness = 5  # Thickness of drawn lines
 tipIds = [4, 8, 12, 16, 20]  # Indexes of finger tip landmarks
 xp, yp = 0, 0  # Previous finger coordinates for continuous drawing
 
@@ -83,8 +87,8 @@ with mp_hands.Hands(max_num_hands=1, min_detection_confidence=0.7, min_tracking_
 
                 if points:
                     # Extract coordinates of key fingertips
-                    x1, y1 = points[4]   # Thumb tip
-                    x2, y2 = points[8]   # Index finger tip
+                    x1, y1 = points[4]  # Thumb tip
+                    x2, y2 = points[8]  # Index finger tip
                     x3, y3 = points[12]  # Middle finger tip
                     x4, y4 = points[16]  # Ring finger tip
                     x5, y5 = points[20]  # Little finger tip
@@ -96,19 +100,22 @@ with mp_hands.Hands(max_num_hands=1, min_detection_confidence=0.7, min_tracking_
                         else [1 if points[tipIds[0]][0] > points[tipIds[0] - 1][0] else 0]
 
                     # Check for extension of other fingers by comparing landmark positions
-                    fingers.extend([1 if points[tipIds[id]][1] < points[tipIds[id] - 2][1] else 0 for id in range(1, 5)])
+                    fingers.extend(
+                        [1 if points[tipIds[id]][1] < points[tipIds[id] - 2][1] else 0 for id in range(1, 5)])
 
                     # Pause mode: if index and middle fingers are extended and others are not
                     if fingers[1] and fingers[2] and all(f == 0 for f in [fingers[0], fingers[3], fingers[4]]):
                         xp, yp = x2, y2
                         cv2.rectangle(frame, (x2 - 10, y2 - 15), (x3 + 10, y3 + 23), drawColor, cv2.FILLED)
-                        cv2.putText(frame, 'PAUSED', (frame.shape[1] - cv2.getTextSize('PAUSED', font, 1, 2)[0][0] - 10, 30),
+                        cv2.putText(frame, 'PAUSED',
+                                    (frame.shape[1] - cv2.getTextSize('PAUSED', font, 1, 2)[0][0] - 10, 30),
                                     font, 1, hudColor, 2, cv2.LINE_AA)
 
                     # Erase mode: if all fingers are extended or if all except thumb are extended
                     if all(fingers) or all(fingers[1:]):
                         cv2.circle(frame, (x3, y3), 40, noColor, cv2.FILLED)
-                        cv2.putText(frame, 'ERASE', (frame.shape[1] - cv2.getTextSize('ERASE', font, 1, 2)[0][0] - 10, 30),
+                        cv2.putText(frame, 'ERASE',
+                                    (frame.shape[1] - cv2.getTextSize('ERASE', font, 1, 2)[0][0] - 10, 30),
                                     font, 1, hudColor, 2, cv2.LINE_AA)
                         if xp == 0 and yp == 0:
                             xp, yp = x3, y3
@@ -119,7 +126,8 @@ with mp_hands.Hands(max_num_hands=1, min_detection_confidence=0.7, min_tracking_
                     # Draw mode: if only index finger is extended
                     if fingers[1] and all(f == 0 for f in [fingers[0], fingers[2], fingers[3], fingers[4]]):
                         cv2.circle(frame, (x2, y2), 10, drawColor, cv2.FILLED)
-                        cv2.putText(frame, 'DRAW', (frame.shape[1] - cv2.getTextSize('DRAW', font, 1, 2)[0][0] - 10, 30),
+                        cv2.putText(frame, 'DRAW',
+                                    (frame.shape[1] - cv2.getTextSize('DRAW', font, 1, 2)[0][0] - 10, 30),
                                     font, 1, hudColor, 2, cv2.LINE_AA)
                         if xp == 0 and yp == 0:
                             xp, yp = x2, y2
@@ -140,7 +148,8 @@ with mp_hands.Hands(max_num_hands=1, min_detection_confidence=0.7, min_tracking_
         # Perform OCR every second to extract drawn mathematical expression
         if time.time() - last_ocr_time > 1:
             gray_canvas = cv2.cvtColor(canvas, cv2.COLOR_BGR2GRAY)  # Convert canvas to grayscale
-            _, thresh = cv2.threshold(gray_canvas, 50, 255, cv2.THRESH_BINARY_INV)  # Apply thresholding for clear contrast
+            _, thresh = cv2.threshold(gray_canvas, 50, 255,
+                                      cv2.THRESH_BINARY_INV)  # Apply thresholding for clear contrast
             detected_text = reader.readtext(thresh)  # Read text using EasyOCR
             text = "".join([text[1] for text in detected_text]).replace(" ", "")
             print("---\nDetected Text:", text)
