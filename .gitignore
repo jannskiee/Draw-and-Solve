@@ -1,0 +1,22 @@
+# --- PyCharm / JetBrains IDE ---
+# Ignores project-specific settings that shouldn't be shared
+.idea/
+.vscode/
+
+# --- Python ---
+# Ignores compiled python files (bytecode)
+__pycache__/
+*.py[cod]
+*$py.class
+
+# --- Virtual Environments ---
+# Ignores the folder containing all your installed libraries
+# (Users should install them using requirements.txt instead)
+venv/
+.venv/
+env/
+
+# --- Operating System Files ---
+# Ignores Mac/Windows system thumbnail files
+.DS_Store
+Thumbs.db
