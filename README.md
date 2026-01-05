@@ -144,7 +144,6 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Author
 
-**Jan Carlo Paredes**
-
+**JC Paredes**
 * **GitHub:** [github.com/jannskiee](https://www.google.com/search?q=https://github.com/jannskiee)
-* **LinkedIn:** [linkedin.com/in/yourprofile](https://linkedin.com/in/yourprofile)
+* **LinkedIn:** [Jan Carlo Paredes](https://www.linkedin.com/in/jan-carlo-paredes-6ab03b398/)
